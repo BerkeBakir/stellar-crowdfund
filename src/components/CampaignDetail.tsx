@@ -46,11 +46,12 @@ export default function CampaignDetail({ id }: { id: string }) {
   const goalMet = summary.raised >= summary.goal;
   const isCreator = publicKey === summary.creator;
   const active = summary.status === 0;
+  const notClaimed = summary.status !== 1;
   let amtOk = false; try { amtOk = xlmToStroops(amount) > 0n; } catch { amtOk = false; }
 
   const canContribute = connected && active && !ended && amtOk && !busy;
   const canClaim = connected && isCreator && active && ended && goalMet && !busy;
-  const canRefund = connected && active && ended && !goalMet && myContribution > 0n && !busy;
+  const canRefund = connected && notClaimed && ended && !goalMet && myContribution > 0n && !busy;
 
   return (
     <div className="flex flex-col gap-4">
