@@ -14,7 +14,7 @@ if(await funded.count()){ const h=await funded.getAttribute('href'); await page.
 await page.goto('http://localhost:3000/create',{waitUntil:'networkidle'}); await page.waitForTimeout(2500);
 await cap('Create a campaign — the Factory deploys a fresh Campaign contract on-chain'); await page.waitForTimeout(4500);
 await page.goto('http://localhost:3000',{waitUntil:'networkidle'}); await page.waitForTimeout(2500);
-const c=page.getByRole('button',{name:/connect wallet/i}); if(await c.count()){ await c.click(); await page.waitForTimeout(3500); await cap('Connect any Stellar wallet (StellarWalletsKit)'); await page.waitForTimeout(2500); const x=page.locator('button',{hasText:/×|close/i}); }
+const c=page.getByRole('button',{name:/connect wallet/i}); if(await c.count()){ await c.click(); await page.waitForTimeout(3500); await cap('Connect any Stellar wallet (StellarWalletsKit)'); await page.waitForTimeout(2500); }
 await cap('3 contracts • inter-contract calls • real XLM • live events • CI/CD'); await page.waitForTimeout(3500);
 await ctx.close(); await browser.close();
 console.log('recorded');

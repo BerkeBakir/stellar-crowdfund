@@ -14,7 +14,12 @@ export default function CampaignDetail({ id }: { id: string }) {
   const [myContribution, setMyContribution] = useState<bigint>(0n);
   const [amount, setAmount] = useState('');
   const [busy, setBusy] = useState(false);
-  const now = Math.floor(Date.now() / 1000);
+  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 30000);
+    return () => clearInterval(t);
+  }, []);
 
   const refresh = useCallback(async () => {
     try {
@@ -24,7 +29,20 @@ export default function CampaignDetail({ id }: { id: string }) {
     } catch { /* ignore */ }
   }, [id, publicKey]);
 
-  useEffect(() => { refresh(); }, [refresh, events]);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const s = await getSummary(id).catch(() => null);
+      if (!active) return;
+      if (s) setSummary(s);
+      if (publicKey) {
+        const c = await contributionOf(id, publicKey).catch(() => null);
+        if (!active) return;
+        if (c !== null) setMyContribution(c);
+      }
+    })();
+    return () => { active = false; };
+  }, [id, publicKey, events]);
 
   async function run(action: () => Promise<string>, label: string) {
     if (!publicKey) return;

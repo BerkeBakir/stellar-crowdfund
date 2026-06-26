@@ -11,7 +11,10 @@ export default function PollProvider() {
   const campaigns = useAppStore((s) => s.campaigns);
   const cursor = useRef<number | null>(null);
   const campaignsRef = useRef<string[]>([]);
-  campaignsRef.current = campaigns;
+
+  useEffect(() => {
+    campaignsRef.current = campaigns;
+  }, [campaigns]);
 
   useEffect(() => {
     let active = true;
