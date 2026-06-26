@@ -205,8 +205,14 @@ auto-deploy on the default branch.
 - Public GitHub repo, English `README.md` (overview, architecture diagram, the three
   **deployed contract addresses**, a verifiable **interaction tx hash**, setup/run, CI
   badge, screenshots, demo video link), Vercel deploy + live link, **10+ meaningful commits**.
-- Demo video (1–2 min) recorded and uploaded by the user; a storyboard/script is provided,
-  and optionally an automated Playwright walkthrough GIF.
+- **Demo video (1–2 min): produced by the project** as a real screen recording via
+  Playwright video capture (`recordVideo`). On-chain state is pre-seeded over CLI (real
+  campaigns, contributions, a successful claim, reputation) so the app shows rich live
+  data; the recording walks the product tour (campaign list → detail with progress/
+  countdown → create form → wallet-connect modal → live event update). The resulting
+  video file is handed to the user, who uploads it to YouTube and pastes the link in the
+  README. In-browser signing is not required for the recording; write operations are
+  proven separately by verifiable on-chain tx hashes.
 
 ---
 
