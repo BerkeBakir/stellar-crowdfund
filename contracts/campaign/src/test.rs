@@ -1,9 +1,10 @@
 #![cfg(test)]
+extern crate std;
 use super::{Campaign, CampaignClient};
 use soroban_sdk::{
     contract, contractimpl, symbol_short,
-    testutils::{Address as _, Ledger},
-    token, Address, Env,
+    testutils::{Address as _, Events as _, Ledger},
+    token, Address, Env, IntoVal,
 };
 
 // Mock reputation that records calls.
@@ -68,19 +69,46 @@ fn contribute_accumulates_and_reaches_goal() {
 
 #[test]
 fn claim_after_success_moves_funds_and_calls_reputation() {
-    let (env, client, creator, token_id, token_admin, _rep) = setup();
+    let (env, client, creator, token_id, token_admin, rep) = setup();
     let alice = Address::generate(&env);
     token_admin.mint(&alice, &2000);
     client.contribute(&alice, &1000); // exactly goal
     let token_client = token::TokenClient::new(&env, &token_id);
 
+    // No reputation event should have been published before claim.
+    let before_has_rec = env
+        .events()
+        .all()
+        .iter()
+        .any(|(addr, _topics, _data)| addr == rep);
+    assert!(!before_has_rec);
+
     env.ledger().set_timestamp(3000); // past deadline 2000
     client.claim();
+
+    // Capture events emitted by the `claim()` invocation before any further
+    // top-level contract calls (like `summary()`) reset the event buffer.
+    let rec_topic: soroban_sdk::Vec<soroban_sdk::Val> = (symbol_short!("rec"),).into_val(&env);
+    let events_after_claim = env.events().all();
 
     assert_eq!(token_client.balance(&creator), 1000);
     assert_eq!(token_client.balance(&client.address), 0);
     let (_c, _g, _d, _t, status) = client.summary();
     assert_eq!(status, 1); // Claimed
+
+    // Verify the cross-contract call to Reputation::record_success actually
+    // fired: MockRep publishes (symbol_short!("rec"),) -> creator.
+    let found_rep_event = events_after_claim.iter().any(|(addr, topics, data)| {
+        if addr != rep || topics != rec_topic {
+            return false;
+        }
+        let decoded_creator: Address = data.into_val(&env);
+        decoded_creator == creator
+    });
+    assert!(
+        found_rep_event,
+        "expected MockRep to publish a 'rec' event with the creator address after claim"
+    );
 }
 
 #[test]
