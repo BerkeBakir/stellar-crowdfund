@@ -10,7 +10,7 @@ creator's success in a **Reputation** contract; otherwise contributors reclaim t
 
 Built for the **Stellar Journey to Mastery — Orange Belt** level.
 
-🔗 **Live demo:** _added after deploy below_
+🔗 **Live demo:** https://stellar-crowdfund-livid.vercel.app
 🎬 **Demo video:** _YouTube link (upload `public/demo/stellar-crowdfund-demo.webm`)_
 
 > **Network:** Stellar **Testnet** only. No real funds are involved.
